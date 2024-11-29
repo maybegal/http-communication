@@ -17,6 +17,7 @@ class HTTPRequest:
         self.line_break = line_break
 
     def dump(self) -> bytes:
+        """Builds HTTP request message in bytes"""
         encoded_method: bytes = self.method.encode()
         encoded_uri: bytes = self.uri.encode()
         encoded_version: bytes = self.version.encode() + self.line_break
@@ -28,3 +29,5 @@ class HTTPRequest:
             encoded_headers += header.encode() + self.line_break
 
         return encoded_method + encoded_uri + encoded_version + encoded_headers + self.body
+
+
