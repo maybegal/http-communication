@@ -20,12 +20,12 @@ class HTTPResponse:
     def dump(self) -> bytes:
         """Encode HTTPResponse object into raw HTTP response bytes."""
         # Construct the response line
-        response_line: bytes = f"{self.version} {self.status}".encode() + self.line_break
+        response_line: bytes = f"{self.version} {self.status} {self.message}".encode() + self.line_break
 
         encoded_headers: bytes = b""
 
         for key, value in self.headers:
-            header: str = f"{key} {value}"
+            header: str = f"{key}: {value}"
             encoded_headers += header.encode() + self.line_break
 
-        return response_line + encoded_headers + self.body
+        return response_line + encoded_headers + self.line_break + self.body

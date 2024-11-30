@@ -15,18 +15,21 @@ def load_request(request: bytes, line_break: bytes = b"\r\n") -> HTTPRequest:
 
     # Decode headers
     headers: dict[str, str] = {}
+    body_start_index = 0
+    current_index = 1
 
     for line in lines[1:]:
         if line == b"":  # Blank line signals end of headers
+            body_start_index = current_index + 1
             break
 
         # Decode and split each line
         key, value = line.decode().split(": ", 1)
-        # Add to headers
         headers[key] = value
 
+        current_index += 1
+
     # Decode body
-    body_start_index = lines.index(b"") + 1
     if body_start_index < len(lines):
         body: bytes = line_break.join(lines[body_start_index:])
     else:

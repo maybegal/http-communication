@@ -28,4 +28,4 @@ class HTTPRequest:
             header: str = f"{key}: {value}"
             encoded_headers += header.encode() + self.line_break
 
-        return request_line + encoded_headers + self.body
+        return request_line + encoded_headers + self.line_break + self.body
