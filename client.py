@@ -6,7 +6,7 @@ from request import HTTPRequest
 
 
 IP = "127.0.0.1"
-PORT = 3002
+PORT = 3000
 ADDRESS = (IP, PORT)
 BUFFER = 4096
 
