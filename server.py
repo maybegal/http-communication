@@ -15,31 +15,19 @@ BUFFER = 4096
 
 def respond(http_request: HTTPRequest) -> HTTPResponse:
     """Generate a generic HTTP response based on the given HTTP request."""
-    try:
-        status: int = 200
-        message: str = "OK"
+    body = "<html><body><h1>Hello</h1></body></html>"
 
-        body: bytes = "<html><body><h1>Hello</h1></body></html>".encode()
-
-        headers: dict[str, str] = {
+    return HTTPResponse(
+        version=http_request.version,
+        status=200,
+        message="OK",
+        headers={
             "Content-Length": str(len(body)),
             "Content-Type": "text/html",
             "Connection": "Closed"
-        }
-
-        return HTTPResponse(http_request.version, status, message, headers, body)
-
-    except Exception as e:
-        print(f"Error generating response: {e}")
-
-        # Fallback response in case of error
-        return HTTPResponse(
-            version="HTTP/1.1",
-            status=500,
-            message="Internal Server Error",
-            headers={"Connection": "Closed"},
-            body=b""
-        )
+        },
+        body=body.encode()
+    )
 
 
 def main() -> None:
@@ -67,7 +55,9 @@ def main() -> None:
             http_response: HTTPResponse = respond(http_request)
 
             # Send HTTP response back to client
-            client.send(http_response.dump())
+            encoded_response = http_response.dump()
+
+            client.send(encoded_response)
             print("Successfully sent back HTTP response to request.")
 
             # Close connection

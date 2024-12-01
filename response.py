@@ -24,7 +24,7 @@ class HTTPResponse:
 
         encoded_headers: bytes = b""
 
-        for key, value in self.headers:
+        for key, value in self.headers.items():
             header: str = f"{key}: {value}"
             encoded_headers += header.encode() + self.line_break
 
