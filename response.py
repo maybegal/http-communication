@@ -29,5 +29,5 @@ class HTTPResponse:
             header: str = f"{key}: {value}"
             encoded_headers += header.encode() + self.line_break
 
-        # Return the response line, headers, a blank line, boy
+        # Return the response line, headers, a blank line, body in raw bytes
         return response_line + encoded_headers + self.line_break + self.body

@@ -5,9 +5,7 @@ from dataclasses import dataclass, field
 
 @dataclass
 class HTTPRequest:
-    """
-    Represents an HTTP request, including method, URI, version, headers, and body.
-    """
+    """Represents an HTTP request, including method, URI, version, headers, and body."""
     method: str = "GET"
     uri: str = "/"
     version: str = "HTTP/1.1"
