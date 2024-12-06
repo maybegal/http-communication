@@ -85,7 +85,7 @@ def main() -> None:
 
     while True:
         request, client = server.receive()
-        response, client = respond(request, endpoints)
+        response = respond(request, endpoints)
         close(response, client)
 
 
