@@ -1,5 +1,5 @@
 # client.py
-
+import json
 import socket
 
 from request import HTTPRequest
@@ -12,23 +12,55 @@ BUFFER = 4096
 
 
 def main() -> None:
-    """Connects to a server and communicates through sending HTTP request and receiving HTTP response."""
+    """Example connection to a server, communicates through sending HTTP request and receiving HTTP response."""
     try:
         # Establish TCP connection
         client = socket.socket()
         client.connect(ADDRESS)
 
+        portfolio = {
+            "NVDA": 500,
+            "PLTR": 250,
+            "TSMC": 320,
+            "BTCUSD": 800,
+        }
+
+        body = json.dumps(portfolio)
+
         http_request = HTTPRequest(
-            method="GET",
-            uri="/home",
+            method="POST",
+            uri="/portfolio",
             version="HTTP/1.1",
             headers={
                 "Host": "127.0.0.1",
                 "User-Agent": "TCP/1.0",
-                "Accept": "text/html",
-                "Content-Type": "text/html"
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Connection": "Keep-Alive",
+                "Keep-Alive": "timeout=5, max=100",
             },
-            body="<html><body><h1>Hey!</h1></body></html>".encode(),
+            body=body.encode(),
+        )
+
+        # Send HTTP request to the server
+        client.send(http_request.dump())
+        print(f"Successfully sent HTTP request to server at {ADDRESS[0]}:{ADDRESS[1]}.")
+
+        # Receive HTTP response from the server
+        response: bytes = client.recv(BUFFER)
+        print(f"Received HTTP response:\n\033[92m{response.decode()}\033[39;49m\n")
+
+        http_request = HTTPRequest(
+            method="GET",
+            uri="/portfolio",
+            version="HTTP/1.1",
+            headers={
+                "Host": "127.0.0.1",
+                "User-Agent": "TCP/1.0",
+                "Accept": "application/json",
+                "Connection": "Close",
+            },
+            body=body.encode(),
         )
 
         # Send HTTP request to the server
