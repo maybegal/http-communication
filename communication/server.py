@@ -75,7 +75,7 @@ def get_pricing(request: HTTPRequest) -> HTTPResponse:
 
 def main() -> None:
     """Hosts a server to communicate with a client through receiving HTTP request and sending HTTP response."""
-    server = HTTPServer(("127.0.0.1", 3000))
+    server = HTTPServer(("127.0.0.1", 8000))
     endpoints = [
         HTTPEndpoint("/home", "GET", get_home),
         HTTPEndpoint("/pricing", "GET", get_pricing)
