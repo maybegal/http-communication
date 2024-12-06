@@ -95,8 +95,15 @@ def main() -> None:
             response: HTTPResponse = respond(request, endpoints)
             server.send(response)
 
-            if not request.is_keep_alive():
-                server.close()
+            if request.is_keep_alive():
+                while True:
+                    request: HTTPRequest = server.receive(False)
+                    response: HTTPResponse = respond(request, endpoints)
+                    server.send(response)
+                    if not request.is_keep_alive():
+                        break
+
+            server.close()
 
         except Exception as e:
             print(f"Server error: {e}")

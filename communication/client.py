@@ -5,10 +5,8 @@ import socket
 from request import HTTPRequest
 
 
-IP = "127.0.0.1"
-PORT = 8000
-ADDRESS = (IP, PORT)
-BUFFER = 4096
+SERVER_ADDRESS = ("127.0.0.1", 8000)
+BUFFER = 1024
 
 
 def main() -> None:
@@ -16,7 +14,7 @@ def main() -> None:
     try:
         # Establish TCP connection
         client = socket.socket()
-        client.connect(ADDRESS)
+        client.connect(SERVER_ADDRESS)
 
         portfolio = {
             "NVDA": 500,
@@ -36,6 +34,7 @@ def main() -> None:
                 "User-Agent": "TCP/1.0",
                 "Accept": "application/json",
                 "Content-Type": "application/json",
+                "Content-Length": str(len(body)),
                 "Connection": "Keep-Alive",
                 "Keep-Alive": "timeout=5, max=100",
             },
@@ -44,7 +43,7 @@ def main() -> None:
 
         # Send HTTP request to the server
         client.send(http_request.dump())
-        print(f"Successfully sent HTTP request to server at {ADDRESS[0]}:{ADDRESS[1]}.")
+        print(f"Successfully sent HTTP request to server at {SERVER_ADDRESS[0]}:{SERVER_ADDRESS[1]}.")
 
         # Receive HTTP response from the server
         response: bytes = client.recv(BUFFER)
@@ -60,12 +59,11 @@ def main() -> None:
                 "Accept": "application/json",
                 "Connection": "Close",
             },
-            body=body.encode(),
         )
 
         # Send HTTP request to the server
         client.send(http_request.dump())
-        print(f"Successfully sent HTTP request to server at {ADDRESS[0]}:{ADDRESS[1]}.")
+        print(f"Successfully sent HTTP request to server at {SERVER_ADDRESS[0]}:{SERVER_ADDRESS[1]}.")
 
         # Receive HTTP response from the server
         response: bytes = client.recv(BUFFER)
