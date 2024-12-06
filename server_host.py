@@ -1,7 +1,6 @@
 import socket
 from dataclasses import dataclass
-from utils import load_request, load_response
-from endpoint import HTTPEndpoint
+from utils import load_request
 from request import HTTPRequest
 from response import HTTPResponse
 
@@ -18,11 +17,8 @@ class HTTPServer:
         self.socket.listen()
         print(f"Server listening on {self.address[0]}:{self.address[1]}.")
 
-    def handle(self):
-        """
-        Handles client connection, receives HTTP request from client.
-        Sends back to client HTTP response that responds to the request, closes connection.
-        """
+    def receive(self) -> tuple[HTTPRequest, socket]:
+        """Handles client connection, receives HTTP request from client."""
         # Accept a new client connection
         client, client_address = self.socket.accept()
 
@@ -30,15 +26,14 @@ class HTTPServer:
         request: bytes = client.recv(self.buffer)
         print(f"Received HTTP request:\n\033[92m{request.decode()}\033[39;49m\n")
 
-        # Parse HTTP request
-        http_request = load_request(request)
+        return load_request(request), client
 
-        # Generate a response
-        http_response = respond(http_request)
 
-        client.send(http_response.dump())
-        print("Successfully sent back HTTP response to request.")
+def close(response: HTTPResponse, client: socket):
+    """Sends back to client HTTP response that responds to the request, closes connection."""
+    client.send(response.dump())
+    print("Successfully sent back HTTP response to request.")
 
-        # Close connection
-        client.close()
-        print("Connection closed.")
+    # Close connection
+    client.close()
+    print("Connection closed.")
