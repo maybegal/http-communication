@@ -8,10 +8,10 @@ from response import HTTPResponse
 @dataclass
 class HTTPServer:
     address: tuple[str, int]
-    server = socket.socket()
+    buffer: int = 1024
+    server: socket = socket.socket()
     server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     last_client: tuple[socket, tuple[str, int]] = ()
-    buffer: int = 1024
 
     def host(self):
         """Binds the server to the server address, listens for connections"""
