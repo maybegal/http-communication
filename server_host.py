@@ -6,14 +6,6 @@ from request import HTTPRequest
 from response import HTTPResponse
 
 
-def respond(endpoints: list[HTTPEndpoint], http_request: HTTPRequest) -> HTTPResponse:
-    """
-    Handles an HTTPRequest by locating the server-side action specified in the request's URI.
-    Executes the action from the server's collection of actions and returns its result as an HTTPResponse.
-    """
-    pass
-
-
 @dataclass
 class HTTPServer:
     address: tuple[str, int]

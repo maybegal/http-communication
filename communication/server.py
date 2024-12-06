@@ -8,6 +8,14 @@ from endpoint import HTTPEndpoint
 from server_host import HTTPServer
 
 
+def respond(endpoints: list[HTTPEndpoint], http_request: HTTPRequest) -> HTTPResponse:
+    """
+    Handles an HTTPRequest by locating the server-side action specified in the request's URI.
+    Executes the action from the server's collection of actions and returns its result as an HTTPResponse.
+    """
+    pass
+
+
 def get_home(request: HTTPRequest) -> HTTPResponse:
     body = "<html><body><h1>Home page</h1></body></html>"
 
