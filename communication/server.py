@@ -5,7 +5,7 @@ import json
 from response import HTTPResponse
 from request import HTTPRequest
 from endpoint import HTTPEndpoint
-from server_host import HTTPServer
+from http_server import HTTPServer
 
 portfolio = {}
 
@@ -56,8 +56,7 @@ def get_portfolio(request: HTTPRequest) -> HTTPResponse:
     return HTTPResponse(
         headers={
             "Content-Length": str(len(body)),
-            "Content-Type": "application/json",
-            "Connection": "Keep-Alive"
+            "Content-Type": "application/json"
         },
         body=body.encode()
     )
@@ -69,6 +68,7 @@ def post_stock(request: HTTPRequest) -> HTTPResponse:
         for stock, amount in stocks.items():
             portfolio[stock] = amount
 
+        print(f"Portfolio updated: {portfolio}")
         return HTTPResponse()
 
     except json.JSONDecodeError:
