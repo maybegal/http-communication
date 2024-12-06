@@ -1,10 +1,13 @@
 # server.py
 
+import json
 
 from response import HTTPResponse
 from request import HTTPRequest
 from endpoint import HTTPEndpoint
-from server_host import HTTPServer, close
+from server_host import HTTPServer
+
+portfolio = {}
 
 
 def respond(http_request: HTTPRequest, endpoints: list[HTTPEndpoint]) -> HTTPResponse:
@@ -47,46 +50,53 @@ def respond(http_request: HTTPRequest, endpoints: list[HTTPEndpoint]) -> HTTPRes
     )
 
 
-def get_home(request: HTTPRequest) -> HTTPResponse:
-    body = f"<html><body><h1>Home page</h1><h2>{request.body}</h2><p>{request.version}</p></body></html>"
+def get_portfolio(request: HTTPRequest) -> HTTPResponse:
+    body = json.dumps(portfolio)
 
     return HTTPResponse(
         headers={
             "Content-Length": str(len(body)),
-            "Content-Type": "text/html",
-            "Connection": "Closed"
+            "Content-Type": "application/json",
+            "Connection": "Keep-Alive"
         },
         body=body.encode()
     )
 
 
-def get_pricing(request: HTTPRequest) -> HTTPResponse:
-    body = f"<html><body><h1>Pricing page</h1><h2>{request.body}</h2><p>{request.version}</p></body></html>"
+def post_stock(request: HTTPRequest) -> HTTPResponse:
+    stocks: dict = json.loads(request.body)
 
-    return HTTPResponse(
-        headers={
-            "Content-Length": str(len(body)),
-            "Content-Type": "text/html",
-            "Connection": "Closed"
-        },
-        body=body.encode()
-    )
+    for stock, amount in stocks.items():
+        portfolio[stock] = amount
+
+    return HTTPResponse()
 
 
 def main() -> None:
     """Hosts a server to communicate with a client through receiving HTTP request and sending HTTP response."""
     server = HTTPServer(("127.0.0.1", 8000))
+
     endpoints = [
-        HTTPEndpoint("/home", "GET", get_home),
-        HTTPEndpoint("/pricing", "GET", get_pricing)
+        HTTPEndpoint("/portfolio", "GET", get_portfolio),
+        HTTPEndpoint("/portfolio", "POST", post_stock),
     ]
 
     server.host()
 
     while True:
-        request, client = server.receive()
-        response = respond(request, endpoints)
-        close(response, client)
+        try:
+            request: HTTPRequest = server.receive()
+            response: HTTPResponse = respond(request, endpoints)
+            server.send(response)
+
+            if request.headers.get("Connection", "").lower() != "keep-alive":
+                break
+
+        except Exception as e:
+            print(f"Server error: {e}")
+            break
+
+    server.close()
 
 
 if __name__ == '__main__':
