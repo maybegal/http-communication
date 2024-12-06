@@ -1,8 +1,8 @@
 import socket
 from dataclasses import dataclass
 from utils import load_request
-from request import HTTPRequest
-from response import HTTPResponse
+from http_request import HTTPRequest
+from http_response import HTTPResponse
 
 
 @dataclass
@@ -19,13 +19,15 @@ class HTTPServer:
         self.server.listen()
         print(f"Server listening on {self.address[0]}:{self.address[1]}.\n\n")
 
-    def receive(self) -> HTTPRequest:
+    def receive(self, is_new__client: bool = True) -> HTTPRequest:
         """Handles client connection, receives HTTP request from client."""
-        client_socket, client_address = self.server.accept()
-        self.last_client = client_socket, client_address
-        print(f"HTTP request received from {client_address[0]}:{client_address[1]}.")
+        if is_new__client:
+            client_socket, client_address = self.server.accept()
+            self.last_client = client_socket, client_address
 
-        request: bytes = client_socket.recv(self.buffer)
+        print(f"HTTP request received from {self.last_client[1][0]}:{self.last_client[1][1]}.")
+
+        request: bytes = self.last_client[0].recv(self.buffer)
 
         return load_request(request)
 

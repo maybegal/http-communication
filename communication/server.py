@@ -2,9 +2,9 @@
 
 import json
 
-from response import HTTPResponse
-from request import HTTPRequest
-from endpoint import HTTPEndpoint
+from http_response import HTTPResponse
+from http_request import HTTPRequest
+from http_endpoint import HTTPEndpoint
 from http_server import HTTPServer
 
 portfolio = {}
