@@ -64,12 +64,18 @@ def get_portfolio(request: HTTPRequest) -> HTTPResponse:
 
 
 def post_stock(request: HTTPRequest) -> HTTPResponse:
-    stocks: dict = json.loads(request.body)
+    try:
+        stocks: dict = json.loads(request.body)
+        for stock, amount in stocks.items():
+            portfolio[stock] = amount
 
-    for stock, amount in stocks.items():
-        portfolio[stock] = amount
+        return HTTPResponse()
 
-    return HTTPResponse()
+    except json.JSONDecodeError:
+        return HTTPResponse(
+            status=422,
+            message="Unprocessable Entity"
+        )
 
 
 def main() -> None:
@@ -89,14 +95,12 @@ def main() -> None:
             response: HTTPResponse = respond(request, endpoints)
             server.send(response)
 
-            if request.headers.get("Connection", "").lower() != "keep-alive":
-                break
+            if not request.is_keep_alive():
+                server.close()
 
         except Exception as e:
             print(f"Server error: {e}")
             break
-
-    server.close()
 
 
 if __name__ == '__main__':
