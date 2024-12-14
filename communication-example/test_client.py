@@ -1,4 +1,5 @@
-# client.py
+# test_client.py
+
 import json
 import socket
 
