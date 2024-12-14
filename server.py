@@ -5,42 +5,81 @@ from dataclasses import dataclass
 from utils import load_request
 from request import HTTPRequest
 from response import HTTPResponse
+from endpoint import HTTPEndpoint
+
+
+def respond(http_request: HTTPRequest, endpoints: list[HTTPEndpoint]) -> HTTPResponse:
+    """
+    Handles an HTTPRequest by locating the server-side action specified in the request's URI.
+    Executes the action from the server's collection of actions and returns its result as an HTTPResponse.
+    """
+    uri_matched = False
+
+    for endpoint in endpoints:
+        if http_request.uri == endpoint.uri:
+            uri_matched = True
+
+            if http_request.method == endpoint.method:
+                try:
+                    return endpoint.endpoint(http_request)
+                except ValueError as e:
+                    print(f"ValueError in endpoint: {e}")
+
+                    return HTTPResponse(
+                        status=504,
+                        message="Internal Server Error"
+                    )
+                except KeyError as e:
+                    print(f"KeyError in endpoint: {e}")
+                    return HTTPResponse(
+                        status=504,
+                        message="Internal Server Error"
+                    )
+
+    if not uri_matched:
+        return HTTPResponse(
+            status=404,
+            message="Not Found",
+        )
+
+    return HTTPResponse(
+        status=405,
+        message="Method Not Allowed",
+    )
 
 
 @dataclass
 class HTTPServer:
-    address: tuple[str, int]
-    buffer: int = 1024
-    server: socket = socket.socket()
-    server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    last_client: tuple[socket, tuple[str, int]] = ()
+    endpoints: list[HTTPEndpoint]
+    headers: dict[str, str] = None
+    server: socket.socket = None
 
-    def host(self):
-        """Binds the server to the server address, listens for connections"""
-        self.server.bind(self.address)
+    def host(self, address: tuple[str, int]):
+        """Hosts new server, binds the server to the server address, listens for connections."""
+        self.server = socket.socket()
+        self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
+        self.server.bind(address)
+
         self.server.listen()
-        print(f"Server listening on {self.address[0]}:{self.address[1]}.\n\n")
+        print(f"Server listening on {address[0]}:{address[1]}.\n")
 
-    def receive(self, is_new__client: bool = True) -> HTTPRequest:
-        """Handles client connection, receives HTTP request from client."""
-        if is_new__client:
-            client_socket, client_address = self.server.accept()
-            self.last_client = client_socket, client_address
+    def handle(self, close: bool = True, client: socket.socket = None, buffer: int = 1024):
+        """Handles client connection. Receives message from client, responds to the request through the connection."""
+        # If no client was given, try to accept new client connection
+        if client is None:
+            client = self.server.accept()
 
-        print(f"HTTP request received from {self.last_client[1][0]}:{self.last_client[1][1]}.")
+        # Receive request from client
+        request: bytes = client.recv(buffer)
+        print(f"HTTP request received from .")
+        http_request: HTTPRequest = load_request(request)
 
-        request: bytes = self.last_client[0].recv(self.buffer)
+        # Respond to HTTPRequest
+        http_response: HTTPResponse = respond(http_request, self.endpoints)
+        client.send(http_response.dump())
+        print(f"Successfully sent HTTP response to .")
 
-        return load_request(request)
-
-    def send(self, response: HTTPResponse):
-        """Sends back to client HTTP response that responds to the request"""
-        client_socket = self.last_client[0]
-        client_socket.send(response.dump())
-        print(f"Successfully sent HTTP response to {self.last_client[1][0]}:{self.last_client[1][1]}.")
-
-    def close(self):
-        """Closes last client connection"""
-        client_socket = self.last_client[0]
-        client_socket.close()
-        print(f"Closed client connection at {self.last_client[1][0]}:{self.last_client[1][1]}.\n\n")
+        if close:
+            client.close()
+            print(f"Closed client connection at .\n\n")
