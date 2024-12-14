@@ -68,18 +68,15 @@ class HTTPServer:
         """Handles client connection. Receives message from client, responds to the request through the connection."""
         # If no client was given, try to accept new client connection
         if client is None:
-            client = self.server.accept()
+            client, addr = self.server.accept()
 
         # Receive request from client
         request: bytes = client.recv(buffer)
-        print(f"HTTP request received from .")
         http_request: HTTPRequest = load_request(request)
 
         # Respond to HTTPRequest
         http_response: HTTPResponse = respond(http_request, self.endpoints)
         client.send(http_response.dump())
-        print(f"Successfully sent HTTP response to .")
 
         if close:
             client.close()
-            print(f"Closed client connection at .\n\n")
