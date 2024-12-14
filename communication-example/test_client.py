@@ -15,7 +15,6 @@ def request(address: tuple[str, int], data: HTTPRequest, buffer: int = 1024) -> 
 
     # Send HTTP request to the server
     client.send(data.dump())
-    print(f"Successfully sent HTTP request to server at {address[0]}:{address[1]}.")
 
     # Receive HTTP response from the server
     response: bytes = client.recv(buffer)
@@ -53,8 +52,9 @@ def main() -> None:
             body=body.encode(),
         )
 
-        response = request(address, http_request)
-        print(f"Received HTTP response:\n\033[92m{response}\033[39;49m\n")
+        http_response = request(address, http_request)
+        print(f"Sent HTTP request:\n\033[92m{http_request}\033[39;49m\n")
+        print(f"Received HTTP response:\n\033[92m{http_response}\033[39;49m\n")
 
         http_request = HTTPRequest(
             method="GET",
@@ -68,8 +68,9 @@ def main() -> None:
             },
         )
 
-        response = request(address, http_request)
-        print(f"Received HTTP response:\n\033[92m{response}\033[39;49m\n")
+        http_response = request(address, http_request)
+        print(f"Sent HTTP request:\n\033[92m{http_request}\033[39;49m\n")
+        print(f"Received HTTP response:\n\033[92m{http_response}\033[39;49m\n")
 
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
