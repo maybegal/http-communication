@@ -34,7 +34,7 @@ def main() -> None:
         "PLTR": 28,
         "TSMC": 2,
         "TSLA": 24,
-        "MNE": 23,
+        "NNE": 23,
     }
 
     request = HTTPRequest(
