@@ -1,7 +1,7 @@
 # utils.py
 
-from http_request import HTTPRequest
-from http_response import HTTPResponse
+from request import HTTPRequest
+from response import HTTPResponse
 
 
 def load_request(request: bytes, line_break: bytes = b"\r\n") -> HTTPRequest:

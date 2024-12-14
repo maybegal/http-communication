@@ -1,8 +1,8 @@
 # HTTP Endpoint
 
 from typing import Callable
-from http_request import HTTPRequest
-from http_response import HTTPResponse
+from request import HTTPRequest
+from response import HTTPResponse
 from dataclasses import dataclass
 
 

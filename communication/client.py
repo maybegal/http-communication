@@ -2,7 +2,7 @@
 import json
 import socket
 
-from http_request import HTTPRequest
+from request import HTTPRequest
 
 
 SERVER_ADDRESS = ("127.0.0.1", 8000)

@@ -36,8 +36,8 @@ The following diagram illustrates the architecture of the HTTP communication sys
 To set up the HTTP server and handle requests, you can create an instance of the `HTTPServer` class. Here's an example of how to use it:
 
 ```python
-from http_server import HTTPServer
-from http_endpoint import HTTPEndpoint
+from server import HTTPServer
+from endpoint import HTTPEndpoint
 
 server = HTTPServer(("127.0.0.1", 8000))
 
@@ -49,21 +49,22 @@ endpoints = [
 server.host()
 
 while True:
-        request = server.receive()
-        response = respond(request, endpoints)
-        server.send(response)
+    request = server.receive()
+    response = respond(request, endpoints)
+    server.send(response)
 
-        server.close()
+    server.close()
 ```
 
 ### Client Example
 
 Here's a simple example of how you could create an HTTP request and simulate sending it to a server:
+
 ```python
 import socket
 import json
 
-from http_request import HTTPRequest
+from request import HTTPRequest
 
 client = socket.socket()
 client.connect(("127.0.0.1", 8000))

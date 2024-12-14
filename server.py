@@ -1,8 +1,8 @@
 import socket
 from dataclasses import dataclass
 from utils import load_request
-from http_request import HTTPRequest
-from http_response import HTTPResponse
+from request import HTTPRequest
+from response import HTTPResponse
 
 
 @dataclass
