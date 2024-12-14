@@ -8,72 +8,83 @@ from response import HTTPResponse
 from utils import load_response
 
 
-def request(address: tuple[str, int], data: HTTPRequest, buffer: int = 1024) -> HTTPResponse:
+def send_request(address: tuple[str, int], data: HTTPRequest, buffer: int = 1024) -> HTTPResponse:
     """Sends HTTP request to given server and data through TCP connection, returns HTTP response."""
     client = socket.socket()
     client.connect(address)
 
     # Send HTTP request to the server
     client.send(data.dump())
+    print(f"Sent HTTP request:\n\033[94m{data}\033[39;49m\n")
 
     # Receive HTTP response from the server
-    response: bytes = client.recv(buffer)
+    response = load_response(client.recv(buffer))
 
-    return load_response(response)
+    print(f"Received HTTP response:\n\033[92m{response}\033[39;49m\n")
+    return response
 
 
 def main() -> None:
     """Example connection to a server, communicates through sending HTTP request and receiving HTTP response."""
-    try:
-        address = ("127.0.0.1", 5000)
+    address = ("127.0.0.1", 5000)
 
-        portfolio = {
-            "NVDA": 500,
-            "PLTR": 250,
-            "TSMC": 320,
-            "BTCUSD": 800,
-        }
+    # Post new portfolio
+    portfolio = {
+        "NVDA": 14,
+        "PLTR": 28,
+        "TSMC": 2,
+        "TSLA": 24,
+        "MNE": 23,
+    }
 
-        body = json.dumps(portfolio)
+    request = HTTPRequest(
+        method="POST",
+        uri="/portfolio",
+        body=json.dumps(portfolio).encode(),
+    )
 
-        http_request = HTTPRequest(
-            method="POST",
-            uri="/portfolio",
-            version="HTTP/1.1",
-            headers={
-                "Host": "127.0.0.1",
-                "User-Agent": "TCP/1.0",
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-                "Content-Length": str(len(body)),
-                "Connection": "Keep-Alive",
-                "Keep-Alive": "timeout=5, max=100",
-            },
-            body=body.encode(),
-        )
+    response = send_request(address, request)
 
-        http_response = request(address, http_request)
-        print(f"Sent HTTP request:\n\033[92m{http_request}\033[39;49m\n")
-        print(f"Received HTTP response:\n\033[92m{http_response}\033[39;49m\n")
+    # Get portfolio
+    request = HTTPRequest(
+        method="GET",
+        uri="/portfolio",
+    )
 
-        http_request = HTTPRequest(
-            method="GET",
-            uri="/portfolio",
-            version="HTTP/1.1",
-            headers={
-                "Host": "127.0.0.1",
-                "User-Agent": "TCP/1.0",
-                "Accept": "application/json",
-                "Connection": "Close",
-            },
-        )
+    response = send_request(address, request)
 
-        http_response = request(address, http_request)
-        print(f"Sent HTTP request:\n\033[92m{http_request}\033[39;49m\n")
-        print(f"Received HTTP response:\n\033[92m{http_response}\033[39;49m\n")
+    # Update the portfolio
+    update_stocks = {
+        "PLTR": 47,
+        "TSMC": 1,
+    }
 
-    except Exception as e:
-        print(f"An unexpected error occurred: {e}")
+    request = HTTPRequest(
+        method="PUT",
+        uri="/portfolio",
+        body=json.dumps(update_stocks).encode()
+    )
+
+    response = send_request(address, request)
+
+    # Remove stocks from portfolio
+    remove_stocks = ["NNE"]
+
+    request = HTTPRequest(
+        method="DELETE",
+        uri="/portfolio",
+        body=json.dumps(remove_stocks).encode()
+    )
+
+    response = send_request(address, request)
+
+    # Get portfolio
+    request = HTTPRequest(
+        method="GET",
+        uri="/portfolio",
+    )
+
+    response = send_request(address, request)
 
 
 if __name__ == '__main__':
